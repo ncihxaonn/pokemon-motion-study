@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="A hands-on study of scroll-directed 3D character motion: inertia, soft landings, overlapping action and a reactive tail flame."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://raw.githubusercontent.com; img-src 'self' blob: data:; media-src 'self'; object-src 'none'; base-uri 'self'"
+    />
+    <title>Pokémon Motion Study</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="vendor/three.min.js"></script>
+    <script defer src="vendor/three-examples.js"></script>
+    <script defer src="src/choreography.js"></script>
+    <script defer src="src/characters.js"></script>
+    <script defer src="src/app.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">POKÉMON · MOTION STUDY</div>
+      <div class="heading-row">
+        <h1>Every move has weight.</h1>
+        <a
+          class="source-link"
+          href="https://github.com/ncihxaonn/pokemon-motion-study"
+          >View source ↗</a
+        >
+      </div>
+      <p id="story">Scroll a little. Watch the whole body follow.</p>
+      <nav aria-label="Choose a character">
+        <button data-kind="pikachu" aria-pressed="false">Pikachu</button>
+        <button data-kind="snorlax" aria-pressed="false">Snorlax</button>
+        <button data-kind="charizard" aria-pressed="true">Charizard</button>
+        <span class="nav-divider"></span>
+        <button id="loop" aria-pressed="false">Play full sequence</button>
+        <button id="slow" aria-pressed="false">Slow · ¼×</button>
+        <button id="pause" aria-pressed="false">Pause</button>
+      </nav>
+    </header>
+    <main
+      id="stage"
+      tabindex="0"
+      aria-label="3D motion stage. Scroll to scrub, or use arrow keys. Space pauses playback."
+    >
+      <div id="card">
+        <span class="eyebrow">WORLDWIDE</span><strong>Coverage.</strong>
+        <div class="bars" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+      <canvas
+        aria-label="Animated 3D Pokémon with scroll-directed entrances, landings and exits"
+      ></canvas>
+      <span id="phase">Loading characters…</span>
+      <span id="stage-hint">SCROLL TO SCRUB</span>
+      <div id="error" hidden>
+        <p>We couldn't load the 3D preview.</p>
+        <p id="error-detail"></p>
+        <button id="retry">Try again</button>
+      </div>
+    </main>
+    <footer>
+      <label class="timeline"
+        >Sequence
+        <input
+          id="progress"
+          aria-label="Sequence progress"
+          type="range"
+          min="-0.72"
+          max="0.73"
+          step="0.005"
+          value="0"
+        /><output id="progress-value">50%</output></label
+      >
+      <div class="frame-controls">
+        <button id="back">← Previous frame</button
+        ><button id="forward">Next frame →</button
+        ><span>Arrow keys to scrub · Space to pause</span>
+      </div>
+      <div class="controls" aria-label="Jump to a motion phase"></div>
+      <p id="status" role="status">Loading three original rigs…</p>
+      <details>
+        <summary>Motion references & credits ↗</summary>
+        <div class="references">
+          <a
+            href="https://cfs.mcz.harvard.edu/news-media/jerboa"
+            target="_blank"
+            rel="noopener"
+            >Pikachu · Harvard's high-speed jerboa footage</a
+          >
+          <a
+            href="https://nationalzoo.si.edu/animals/news/bei-bei-plays-snow"
+            target="_blank"
+            rel="noopener"
+            >Snorlax · Smithsonian's panda rolling footage</a
+          >
+          <a
+            href="https://elifesciences.org/articles/46415#video2"
+            target="_blank"
+            rel="noopener"
+            >Charizard · Bird landing and load acceptance</a
+          >
+          <a
+            href="https://engineering.brown.edu/news/2013-02-20/brown-researchers-build-robotic-bat-wing"
+            target="_blank"
+            rel="noopener"
+            >Wings · Brown's bat-wing research</a
+          >
+          <a
+            href="https://www.allaboutbirds.org/guide/great_blue_heron/id"
+            target="_blank"
+            rel="noopener"
+            >Legs · Great blue heron flight posture</a
+          >
+          <a
+            href="https://journals.biologists.com/jeb/article/227/21/jeb247552/362590/The-role-of-mouse-tails-in-response-to-external"
+            target="_blank"
+            rel="noopener"
+            >Tail · Dynamic balance and counterweight</a
+          >
+          <a
+            href="https://www.nasa.gov/missions/station/iss-research/studying-combustion-and-fire-safety/"
+            target="_blank"
+            rel="noopener"
+            >Flame · NASA's buoyancy experiments</a
+          >
+        </div>
+        <p>
+          Reference-informed character animation, not motion capture or a
+          physical simulation. Pokémon assets are third-party material and are
+          not covered by this project's MIT code license.
+          <a href="THIRD_PARTY.md">Full credits</a>.
+        </p>
+      </details>
+      <details id="recordings">
+        <summary>Watch the full recordings ↗</summary>
+        <div class="videos">
+          <figure>
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="media/pikachu.jpg"
+              src="media/pikachu.mp4"
+            ></video>
+            <figcaption>Pikachu — Run. Settle. Dash away.</figcaption>
+          </figure>
+          <figure>
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="media/snorlax.jpg"
+              src="media/snorlax.mp4"
+            ></video>
+            <figcaption>Snorlax — Land. Snooze. Scratch. Slip.</figcaption>
+          </figure>
+          <figure>
+            <video
+              controls
+              playsinline
+              preload="none"
+              poster="media/charizard.jpg"
+              src="media/charizard.mp4"
+            ></video>
+            <figcaption>
+              Charizard — Brake. Land. Push off. Fly past.
+            </figcaption>
+          </figure>
+        </div>
+      </details>
+      <p class="credit">
+        An unofficial animation study by
+        <a href="https://github.com/ncihxaonn">Nixon</a>. Built with Three.js.
+        Character models via
+        <a href="https://github.com/06wj/pokemon">06wj/pokemon</a>.
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+vendor/
+dist/
+.cache/
+node_modules/
+output/
+media/*.mp4
+media/*.jpg

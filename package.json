@@ -1,0 +1,26 @@
+{
+  "name": "pokemon-motion-study",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scroll-directed character animation with full-body follow-through, planted feet, and reactive tail flame.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:rig": "node scripts/verify-rigs.mjs",
+    "models:fetch": "node scripts/fetch-models.mjs",
+    "record": "node scripts/record.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "playwright": "1.59.1",
+    "prettier": "3.6.2"
+  }
+}

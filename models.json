@@ -1,0 +1,139 @@
+{
+  "repository": "https://github.com/06wj/pokemon",
+  "commit": "00d96f7f18894055e7f1db44fa0df6462e5e4c8a",
+  "models": [
+    {
+      "name": "pikachu",
+      "id": "025",
+      "sha256": "5c9e14325cd7f2d4fcf8b9a6ba3a3bcd0c5947c2fd5b102de24643014a9c758c",
+      "model": "models/025/model.glb",
+      "exportVersion": 4,
+      "idleAnimation": "idle",
+      "animations": [
+        {
+          "name": "idle",
+          "sourceAction": "pm0025_00_00_00000_defaultwait01_loop",
+          "duration": 1.1333333333333333
+        },
+        {
+          "name": "walk",
+          "sourceAction": "pm0025_00_00_00030_walk01_loop",
+          "duration": 1.0
+        },
+        {
+          "name": "run",
+          "sourceAction": "pm0025_00_00_00100_run01_loop",
+          "duration": 0.4
+        },
+        {
+          "name": "attack",
+          "sourceAction": "pm0025_00_00_00400_attack01",
+          "duration": 1.8333333333333333
+        },
+        {
+          "name": "happy",
+          "sourceAction": "pm0025_00_00_00550_glad01",
+          "duration": 1.6666666666666667
+        },
+        {
+          "name": "sleep",
+          "sourceAction": "pm0025_00_00_00281_sleep01_loop",
+          "duration": 4.0
+        }
+      ],
+      "source": "pm0025.blend",
+      "fps": 60.0,
+      "bytes": 7344736,
+      "url": "https://raw.githubusercontent.com/06wj/pokemon/00d96f7f18894055e7f1db44fa0df6462e5e4c8a/public/models/025/model.glb"
+    },
+    {
+      "name": "snorlax",
+      "id": "143",
+      "sha256": "b49437acbb7485d092373940ca66425318660fe1237663160a6f8386ec5620ae",
+      "model": "models/143/model.glb",
+      "exportVersion": 4,
+      "idleAnimation": "idle",
+      "animations": [
+        {
+          "name": "idle",
+          "sourceAction": "pm0143_00_00_00000_defaultwait01_loop.gfbanm",
+          "duration": 6.291666666666667
+        },
+        {
+          "name": "walk",
+          "sourceAction": "pm0143_00_00_00030_walk01_loop.gfbanm",
+          "duration": 6.291666666666667
+        },
+        {
+          "name": "run",
+          "sourceAction": "pm0143_00_00_00100_run01_loop.gfbanm",
+          "duration": 2.0416666666666665
+        },
+        {
+          "name": "attack",
+          "sourceAction": "pm0143_00_00_00400_attack01.gfbanm",
+          "duration": 5.458333333333333
+        },
+        {
+          "name": "happy",
+          "sourceAction": "pm0143_00_00_00550_glad01.gfbanm",
+          "duration": 4.791666666666667
+        },
+        {
+          "name": "sleep",
+          "sourceAction": "pm0143_00_00_00281_sleep01_loop.gfbanm",
+          "duration": 5.041666666666667
+        }
+      ],
+      "source": "pm0143_00.blend",
+      "fps": 24.0,
+      "bytes": 2963412,
+      "url": "https://raw.githubusercontent.com/06wj/pokemon/00d96f7f18894055e7f1db44fa0df6462e5e4c8a/public/models/143/model.glb"
+    },
+    {
+      "name": "charizard",
+      "id": "006",
+      "sha256": "3282da7efe1e4a070d37a648d5af3d105365ec1a6320a4f572bb1b4307f5ba0a",
+      "model": "models/006/model.glb",
+      "exportVersion": 4,
+      "idleAnimation": "idle",
+      "animations": [
+        {
+          "name": "idle",
+          "sourceAction": "pm0006_00_00_00000_defaultwait01_loop.gfbanm",
+          "duration": 6.041666666666667
+        },
+        {
+          "name": "walk",
+          "sourceAction": "pm0006_00_00_00030_walk01_loop.gfbanm",
+          "duration": 4.041666666666667
+        },
+        {
+          "name": "run",
+          "sourceAction": "pm0006_00_00_00100_run01_loop.gfbanm",
+          "duration": 2.125
+        },
+        {
+          "name": "attack",
+          "sourceAction": "pm0006_00_00_00400_attack01.gfbanm",
+          "duration": 5.458333333333333
+        },
+        {
+          "name": "happy",
+          "sourceAction": "pm0006_00_00_00550_glad01.gfbanm",
+          "duration": 5.875
+        },
+        {
+          "name": "sleep",
+          "sourceAction": "pm0006_00_00_00281_sleep01_loop.gfbanm",
+          "duration": 5.875
+        }
+      ],
+      "source": "pm0006_00.blend",
+      "fps": 24.0,
+      "bytes": 7238092,
+      "url": "https://raw.githubusercontent.com/06wj/pokemon/00d96f7f18894055e7f1db44fa0df6462e5e4c8a/public/models/006/model.glb"
+    }
+  ],
+  "assetLicense": "Third-party Pok\u00e9mon assets; no asset rights granted by the source repository or this project."
+}

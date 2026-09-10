@@ -1,0 +1,361 @@
+* {
+  box-sizing: border-box;
+}
+html {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: #0b1420;
+  color: #eef6ff;
+  font:
+    15px/1.5 system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+header,
+footer {
+  padding: 24px 5vw;
+  max-width: 1600px;
+  margin: auto;
+}
+.eyebrow {
+  color: #90a5ba;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+.heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+h1 {
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  margin: 10px 0 8px;
+}
+#story {
+  color: #9bb3c7;
+  margin: 0 0 22px;
+}
+nav,
+.controls,
+.frame-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nav-divider {
+  width: 1px;
+  height: 28px;
+  background: #304658;
+  margin: 0 7px;
+}
+button,
+a {
+  color: inherit;
+  font: inherit;
+}
+button {
+  padding: 9px 17px;
+  background: #172636;
+  border: 1px solid #304658;
+  border-radius: 99px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+button[aria-pressed="true"] {
+  background: #e4ee88;
+  color: #172012;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+a:focus-visible,
+main:focus-visible {
+  outline: 3px solid #8bc8ff;
+  outline-offset: 3px;
+}
+main {
+  position: relative;
+  height: 58vh;
+  min-height: 390px;
+  max-width: 1480px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #293d4d;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 70%, #234056, #101d2b 80%);
+  touch-action: pan-y;
+}
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#card {
+  position: absolute;
+  left: 26%;
+  top: 48%;
+  width: 46%;
+  height: 45%;
+  border: 1px solid #84a4bb55;
+  background: linear-gradient(120deg, #33577299, #18314988);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 70px #0004;
+}
+#card strong {
+  display: block;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-weight: 550;
+}
+#card .bars {
+  height: 70px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-top: 24px;
+}
+i {
+  display: block;
+  flex: 1;
+  background: #cae995aa;
+  border-radius: 5px 5px 0 0;
+}
+i:nth-child(1) {
+  height: 40%;
+}
+i:nth-child(2) {
+  height: 64%;
+}
+i:nth-child(3) {
+  height: 50%;
+}
+i:nth-child(4) {
+  height: 87%;
+}
+i:nth-child(5) {
+  height: 70%;
+}
+i:nth-child(6) {
+  height: 100%;
+}
+footer {
+  display: grid;
+  gap: 18px;
+}
+.timeline {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+input {
+  flex: 1;
+  accent-color: #d7ec98;
+}
+output {
+  min-width: 40px;
+  font-variant-numeric: tabular-nums;
+  color: #a8bfce;
+}
+.frame-controls span {
+  font-size: 12px;
+  color: #8098ae;
+  margin-left: 12px;
+}
+#status,
+.credit,
+details p {
+  color: #9bb3c7;
+  font-size: 13px;
+  margin: 0;
+}
+.source-link {
+  font-size: 13px;
+  text-underline-offset: 4px;
+}
+#phase {
+  position: absolute;
+  left: 24px;
+  top: 18px;
+  color: #b8cdde;
+  font-size: 14px;
+}
+#stage-hint {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  color: #83a0b4;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.references {
+  display: grid;
+  gap: 10px;
+  padding: 16px 0;
+  font-size: 13px;
+}
+.videos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+figure {
+  margin: 0;
+}
+video {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 14px;
+  background: #132433;
+}
+figcaption {
+  font-size: 12px;
+  color: #9bb3c7;
+  margin-top: 8px;
+}
+#error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  background: #101d2bee;
+  padding: 30px;
+}
+#error[hidden] {
+  display: none;
+}
+#error p {
+  margin: 6px 0;
+}
+#retry {
+  margin-top: 18px;
+}
+body[data-capture] header {
+  padding-top: 35px;
+}
+body[data-capture] main {
+  height: 64vh;
+  margin: 0 4vw;
+}
+body[data-capture] nav,
+body[data-capture] .source-link,
+body[data-capture] .frame-controls,
+body[data-capture] .controls,
+body[data-capture] #status,
+body[data-capture] details,
+body[data-capture] .credit,
+body[data-capture] #stage-hint {
+  display: none;
+}
+body[data-capture] #story {
+  font-size: 18px;
+  margin-bottom: 0;
+}
+body[data-capture] header {
+  padding-bottom: 26px;
+}
+body[data-capture] .timeline {
+  pointer-events: none;
+}
+body[data-capture] #card {
+  padding: 28px;
+}
+body[data-capture] #card .bars {
+  height: 100px;
+}
+@media (max-width: 1550px) {
+  main {
+    margin-left: 4vw;
+    margin-right: 4vw;
+  }
+}
+@media (max-width: 650px) {
+  h1 {
+    font-size: 30px;
+  }
+  .heading-row {
+    display: block;
+  }
+  .source-link {
+    position: absolute;
+    right: 5vw;
+    top: 22px;
+    font-size: 11px;
+  }
+  header {
+    padding-top: 55px;
+  }
+  nav {
+    gap: 7px;
+  }
+  button {
+    padding: 8px 13px;
+    font-size: 13px;
+  }
+  .nav-divider {
+    display: none;
+  }
+  #card {
+    left: 10%;
+    width: 72%;
+    padding: 20px;
+  }
+  #card strong {
+    font-size: 28px;
+  }
+  main {
+    height: 52vh;
+  }
+  .frame-controls span {
+    display: none;
+  }
+  .videos {
+    grid-template-columns: 1fr;
+  }
+  #stage-hint {
+    display: none;
+  }
+  footer {
+    gap: 16px;
+  }
+  .timeline {
+    gap: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  button:hover {
+    background: #2c4255;
+  }
+  button[aria-pressed="true"]:hover {
+    background: #ecf6a5;
+  }
+}
