@@ -12,18 +12,22 @@ reactive tail flame.
 Run in, brake, settle, then dash away. Ears, wrists and the tail follow the stride
 with a slight delay.
 
-[![Pikachu full-sequence recording](media/pikachu.jpg)](media/pikachu.mp4)
+<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/pikachu.jpg" width="100%">
+  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/pikachu.mp4" type="video/mp4">
+</video>
 
-[Watch Pikachu's full recording](media/pikachu.mp4)
+[Open Pikachu's full recording](media/pikachu.mp4)
 
 ### Snorlax
 
-Drop onto the card, settle into sleep, reach for an itch, roll past the support
+Drop into the stage, settle into sleep, reach for an itch, roll past the support
 and slip off. The hands, feet and smaller joints react after the heavy core.
 
-[![Snorlax full-sequence recording](media/snorlax.jpg)](media/snorlax.mp4)
+<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/snorlax.jpg" width="100%">
+  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/snorlax.mp4" type="video/mp4">
+</video>
 
-[Watch Snorlax's full recording](media/snorlax.mp4)
+[Open Snorlax's full recording](media/snorlax.mp4)
 
 ### Charizard
 
@@ -31,9 +35,11 @@ Brake, reach with the feet, absorb the landing, crouch, push through the toes,
 then fly left toward the camera. The tail follows in seven segments; the flame
 bends with tail movement, relative airflow and upward buoyancy.
 
-[![Charizard full-sequence recording](media/charizard.jpg)](media/charizard.mp4)
+<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/charizard.jpg" width="100%">
+  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/charizard.mp4" type="video/mp4">
+</video>
 
-[Watch Charizard's full recording](media/charizard.mp4)
+[Open Charizard's full recording](media/charizard.mp4)
 
 The recordings are actual browser frames of the full sequence, one per character.
 The interactive page also has an inline video gallery under **Watch the full recordings**.

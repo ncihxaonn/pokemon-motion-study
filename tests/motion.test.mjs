@@ -128,3 +128,39 @@ test("All shipped scripts parse and the UI is English", () => {
     ),
   );
 });
+
+test("Three power strokes continue after a synchronized wing and leg push", () => {
+  const beat = (exit, time = 0) =>
+    context.pokemonCharizardWingBeat(time, { exit });
+  for (const time of [0, 0.6, 2.1]) near(beat(0.18, time).stroke(), 1);
+  const driving = beat(0.31),
+    legs = context.pokemonCharizardMechanics(1, 0.31);
+  assert(legs.push > 0.5 && legs.support === 1 && driving.power() > 0.8);
+  assert(driving.stroke(0) < driving.stroke(0.065));
+  assert(driving.stroke(0.065) < driving.stroke(0.115));
+  assert.equal(driving.fold(0.065), 0);
+  for (const [raised, lowered, recovered] of [
+    [0.2, 0.4, 0.48],
+    [0.48, 0.56, 0.64],
+    [0.64, 0.72, 0.8],
+  ]) {
+    near(beat(raised).stroke(), 1);
+    near(beat(lowered).stroke(), -1);
+    near(beat(recovered).stroke(), 1);
+  }
+  assert(beat(0.52).power() > 0.9 && beat(0.68).power() > 0.9);
+  assert(context.pokemonCharizardMechanics(1, 0.61).support === 0);
+  near(driving.stroke(), beat(0.31, 3.5).stroke());
+  for (const exit of [
+    0.015, 0.14, 0.2, 0.36, 0.4, 0.48, 0.56, 0.64, 0.72, 0.8, 0.96, 1,
+  ]) {
+    for (const lag of [0, 0.065, 0.115, 0.19]) {
+      assert(
+        Math.abs(
+          beat(exit - 1e-6, 0.7).stroke(lag) -
+            beat(exit + 1e-6, 0.7).stroke(lag),
+        ) < 2e-4,
+      );
+    }
+  }
+});

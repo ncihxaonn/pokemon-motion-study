@@ -98,6 +98,93 @@ function createPokemonCharacter(kind) {
     if (bone.isBone || /^(spine_0[12]|waist|hips)$/.test(bone.name))
       joints.set(bone.name, { bone, base: bone.quaternion.clone() });
   });
+  const wingRest = new Map();
+  if (kind === "charizard")
+    joints.forEach(({ bone }, name) => {
+      if (name.includes("_wing_")) wingRest.set(name, bone.quaternion.clone());
+    });
+  // The pinned Charizard mesh already carries membrane-spar skin weights.
+  // Clone just that geometry; body/eyes/fire and the cached GLB stay untouched.
+  // A bind-space camber corrective complements the spar articulation instead
+  // of replacing skinning. Blended spar weights taper it at rigid attachments.
+  const membranes = [];
+  if (kind === "charizard")
+    model.traverse((mesh) => {
+      if (!mesh.isSkinnedMesh) return;
+      const indices = mesh.geometry.getAttribute("skinIndex"),
+        weights = mesh.geometry.getAttribute("skinWeight"),
+        mask = [];
+      for (let i = 0; i < weights.count; i++) {
+        let spar = 0;
+        for (let j = 0; j < 4; j++) {
+          const bone = mesh.skeleton.bones[indices.array[i * 4 + j]];
+          if (bone.name.endsWith("_wing_b")) spar += weights.array[i * 4 + j];
+        }
+        if (spar > 0.001 && spar < 0.999)
+          mask.push({ index: i, amount: 4 * spar * (1 - spar) });
+      }
+      if (!mask.length) return;
+      mesh.geometry = mesh.geometry.clone();
+      const geometry = mesh.geometry,
+        normals = geometry.attributes.normal.array.slice();
+      geometry.computeVertexNormals();
+      const geometricNormals = geometry.attributes.normal.array.slice();
+      geometry.attributes.normal.array.set(normals);
+      membranes.push({
+        geometry,
+        mask,
+        rest: geometry.attributes.position.array.slice(),
+        normals,
+        geometricNormals,
+      });
+    });
+  const membraneNormal = new THREE.Vector3();
+  function flexMembranes(beat, effort) {
+    for (const {
+      geometry,
+      mask,
+      rest,
+      normals,
+      geometricNormals,
+    } of membranes) {
+      const position = geometry.attributes.position;
+      position.array.set(rest);
+      for (const { index, amount } of mask) {
+        // Load travels from the inner panel toward the tip. The recovery is
+        // softer, with a small delayed reverse bend at stroke reversal.
+        const span = Math.min(1, Math.abs(rest[index * 3]) / 1.25),
+          lag = 0.065 + span * 0.09,
+          pressure = beat ? beat.power(lag) : 0,
+          recovery = beat ? beat.fold(lag) : 0,
+          recoil = beat ? beat.stroke(lag + 0.07) - beat.stroke(lag) : 0;
+        position.array[index * 3 + 2] -=
+          effort *
+          amount *
+          (0.085 * pressure - 0.035 * recovery + 0.025 * recoil);
+      }
+      position.needsUpdate = true;
+      if (effort > 0) {
+        geometry.computeVertexNormals();
+        // Apply only the change in geometric normal to the authored smooth
+        // normal. Replacing it outright would pop at the first nonzero load.
+        const bent = geometry.attributes.normal.array.slice();
+        geometry.attributes.normal.array.set(normals);
+        for (const { index } of mask) {
+          membraneNormal.fromArray(normals, index * 3);
+          membraneNormal.x += bent[index * 3] - geometricNormals[index * 3];
+          membraneNormal.y +=
+            bent[index * 3 + 1] - geometricNormals[index * 3 + 1];
+          membraneNormal.z +=
+            bent[index * 3 + 2] - geometricNormals[index * 3 + 2];
+          membraneNormal
+            .normalize()
+            .toArray(geometry.attributes.normal.array, index * 3);
+        }
+      } else geometry.attributes.normal.array.set(normals);
+      geometry.attributes.normal.needsUpdate = true;
+      geometry.computeBoundingSphere();
+    }
+  }
   const axis = new THREE.Vector3(),
     parentRotation = new THREE.Quaternion(),
     offset = new THREE.Quaternion();
@@ -343,6 +430,8 @@ function createPokemonCharacter(kind) {
       lastTime = local;
       joints.forEach(({ bone, base }) => base.copy(bone.quaternion));
       let bob = 0;
+      if (kind === "charizard" && (!motion || motion.still))
+        flexMembranes(null, 0);
       if (kind === "pikachu" && motion && !motion.still) {
         // The original run clip keeps ownership of stride and foot contact.
         // Chest -> head -> ears and hips -> tail inherit that same gait beat.
@@ -607,56 +696,21 @@ function createPokemonCharacter(kind) {
         }
       }
       if (kind === "charizard" && motion && !motion.still) {
-        // 38% extended power stroke, 62% folded recovery. Elbow and wrist
-        // reverse later than the shoulder; the membrane follows that chain.
-        const cycle = local * 0.82;
-        const stroke = (phase) => {
-          const p = ((phase % 1) + 1) % 1;
-          return p < 0.38
-            ? Math.cos((p / 0.38) * Math.PI)
-            : -Math.cos(((p - 0.38) / 0.62) * Math.PI);
-        };
-        const fold = (phase) => {
-          const p = ((phase % 1) + 1) % 1;
-          return p < 0.38
-            ? 0
-            : Math.pow(Math.sin(((p - 0.38) / 0.62) * Math.PI), 2);
-        };
-        const {
-          flight,
-          support,
-          crouch,
-          landingLoad,
-          windup,
-          push,
-          reach,
-          brake,
-        } = motion;
+        // The native mixer was sampled above. Pin its wing tracks now, before
+        // authored offsets, so an idle cycle cannot be added to the power stroke.
+        wingRest.forEach((rotation, name) =>
+          joints.get(name).bone.quaternion.copy(rotation),
+        );
+        const { flight, crouch, landingLoad, windup, push, reach, brake } =
+          motion;
+        const beat = pokemonCharizardWingBeat(local, motion);
+        const wingStroke = beat.stroke,
+          wingFold = beat.fold;
         const effort = motion.wingDrive;
-        const ease = (a, b, x) => {
-          const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
-          return t * t * (3 - 2 * t);
-        };
-        // During the launch, the downstroke is driven by the same progress as
-        // leg extension. A free-running flap must not recover upward at push-off.
-        const launch =
-          ease(0.015, 0.16, motion.exit) * (1 - ease(0.5, 0.72, motion.exit));
-        const launchCycle =
-          0.38 * ease(0.16, 0.46, motion.exit) +
-          0.2 * ease(0.46, 0.72, motion.exit);
-        const wingStroke = (lag) =>
-          THREE.MathUtils.lerp(
-            stroke(cycle - lag),
-            stroke(launchCycle - lag),
-            launch,
-          );
-        const wingFold = (lag) =>
-          THREE.MathUtils.lerp(
-            fold(cycle - lag),
-            fold(launchCycle - lag),
-            launch,
-          );
-        const liftStroke = -0.2 * push;
+        flexMembranes(beat, effort);
+        // Wing loading already acts on the torso during the leg push. The final
+        // IK pass keeps the toes planted while both sources of effort overlap.
+        const wingLoad = Math.max(flight, push * motion.support);
         const delayedLoad = pokemonCharizardMechanics(
           Math.max(0, motion.entry - 0.035 * Math.sin(Math.PI * motion.entry)),
           Math.max(0, motion.exit - 0.04),
@@ -666,20 +720,29 @@ function createPokemonCharacter(kind) {
           ["right", -1],
         ]) {
           const bank = sign * motion.roll * 0.2;
+          // The imported chain is shoulder (01/02), elbow (03), wrist (04)
+          // and outer spars (05/06). Shoulder depression supplies the stroke;
+          // elbow extension opens the wing, then the wrist changes its shape.
           rotateJoint(
             side + "_wing_a_01",
             0,
             0,
             1,
-            sign *
-              ((-0.32 + 0.64 * wingStroke(0) + bank) * effort + liftStroke),
+            sign * (-0.35 + 0.75 * wingStroke(0) + bank) * effort,
           );
           rotateJoint(
             side + "_wing_a_02",
             0,
             0,
             1,
-            sign * (0.11 * wingStroke(0.045) * effort),
+            sign * 0.09 * wingStroke(0.025) * effort,
+          );
+          rotateJoint(
+            side + "_wing_a_03",
+            0,
+            0,
+            1,
+            sign * (0.2 * wingStroke(0.065) + 0.18) * effort,
           );
           rotateJoint(
             side + "_wing_a_03",
@@ -687,28 +750,54 @@ function createPokemonCharacter(kind) {
             1,
             0,
             sign *
-              ((0.1 + 0.64 * wingFold(0.06)) * effort + 0.52 * (1 - effort)),
+              ((0.04 + 0.82 * wingFold(0.065)) * effort + 0.52 * (1 - effort)),
           );
           rotateJoint(
             side + "_wing_a_04",
             0,
             0,
             1,
-            sign * ((-0.13 + 0.24 * wingStroke(0.1)) * effort),
+            sign * (0.04 + 0.15 * wingStroke(0.115)) * effort,
+          );
+          rotateJoint(
+            side + "_wing_a_04",
+            0,
+            1,
+            0,
+            sign * 0.25 * wingFold(0.14) * effort,
           );
           rotateJoint(
             side + "_wing_a_05",
             0,
             1,
             0,
-            sign * (0.28 * wingFold(0.12) * effort),
+            sign * 0.22 * wingFold(0.17) * effort,
           );
           rotateJoint(
             side + "_wing_a_06",
             0,
             0,
             1,
-            sign * (0.12 * wingStroke(0.16) * effort),
+            sign * 0.1 * wingStroke(0.19) * effort,
+          );
+          // The trailing membrane spar yields after the leading edge. Its
+          // delayed pitch changes the panel's curvature, then unwinds on recovery.
+          rotateJoint(
+            side + "_wing_b",
+            1,
+            0,
+            0,
+            effort *
+              (0.32 * beat.power(0.1) -
+                0.18 * wingFold(0.16) +
+                0.1 * (wingStroke(0.21) - wingStroke(0.1))),
+          );
+          rotateJoint(
+            side + "_wing_b",
+            0,
+            1,
+            0,
+            sign * effort * (0.14 * beat.power(0.16) - 0.12 * wingFold(0.2)),
           );
           // Long-legged birds trail their extended hindlimbs in flight. Keep
           // a soft knee, sweep from the hip, and point the toes aft. Ground IK
@@ -800,14 +889,14 @@ function createPokemonCharacter(kind) {
             1,
             0,
             0,
-            0.028 * wingStroke(0.24) * flight,
+            0.055 * wingStroke(0.24) * flight,
           );
           rotateJoint(
             side + "_foot",
             1,
             0,
             0,
-            0.045 * wingStroke(0.34) * flight,
+            0.075 * wingStroke(0.34) * flight,
           );
           rotateJoint(
             side + "_toe",
@@ -850,13 +939,13 @@ function createPokemonCharacter(kind) {
         rotateJoint("head", 1, 0, 0, 0.14 * delayedLoad - 0.09 * crouch);
         const oldChest = laggedMotion(motion, 0.022),
           oldHead = laggedMotion(motion, 0.045);
-        rotateJoint("spine_01", 1, 0, 0, 0.035 * wingStroke(0.1) * flight);
+        rotateJoint("spine_01", 1, 0, 0, -0.065 * wingStroke(0.08) * wingLoad);
         rotateJoint(
           "spine_02",
           1,
           0,
           0,
-          0.025 * wingStroke(0.16) * flight +
+          -0.035 * wingStroke(0.14) * wingLoad +
             0.22 * (oldChest.pitch - motion.pitch),
         );
         rotateJoint(
@@ -864,11 +953,11 @@ function createPokemonCharacter(kind) {
           1,
           0,
           0,
-          -0.035 * wingStroke(0.21) * flight +
+          0.045 * wingStroke(0.16) * wingLoad +
             0.18 * (oldHead.pitch - motion.pitch),
         );
-        rotateJoint("neck_03", 1, 0, 0, -0.025 * wingStroke(0.29) * flight);
-        rotateJoint("head", 1, 0, 0, -0.025 * wingStroke(0.35) * flight);
+        rotateJoint("neck_03", 1, 0, 0, 0.03 * wingStroke(0.23) * wingLoad);
+        rotateJoint("head", 1, 0, 0, 0.025 * wingStroke(0.3) * wingLoad);
         rotateJoint("neck_01", 0, 0, 1, -0.32 * motion.roll);
         rotateJoint("neck_02", 0, 1, 0, 0.12 * (oldHead.yaw - motion.yaw));
         // Look at the destination before the trunk commits to the move.
@@ -919,7 +1008,12 @@ function createPokemonCharacter(kind) {
             (current.pitch - prior.pitch) / (0.01 / 0.28);
           tailRates[i - 1].yaw = (current.yaw - prior.yaw) / (0.01 / 0.28);
         }
-        bob = 0.065 * wingStroke(0.18) * flight - 0.3 * crouch + 0.025 * push;
+        // The chest rises after the power stroke; it must not drop with the wings.
+        bob =
+          -0.085 * wingStroke(0.09) * flight -
+          0.3 * crouch +
+          0.025 * push +
+          0.07 * beat.power(0.05) * push * motion.support;
       }
       group.rotation.set(
         motion?.pitch || 0,
@@ -950,6 +1044,7 @@ function createPokemonCharacter(kind) {
     dispose() {
       mixer.stopAllAction();
       mixer.uncacheRoot(model);
+      for (const { geometry } of membranes) geometry.dispose();
     },
   };
 }
