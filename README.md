@@ -12,9 +12,7 @@ reactive tail flame.
 Run in, brake, settle, then dash away. Ears, wrists and the tail follow the stride
 with a slight delay.
 
-<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/pikachu.jpg" width="100%">
-  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/pikachu.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/3645cba6-14b1-484c-8722-6a9779367664
 
 [Open Pikachu's full recording](media/pikachu.mp4)
 
@@ -23,9 +21,7 @@ with a slight delay.
 Drop into the stage, settle into sleep, reach for an itch, roll past the support
 and slip off. The hands, feet and smaller joints react after the heavy core.
 
-<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/snorlax.jpg" width="100%">
-  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/snorlax.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/187d5f66-1272-4b03-a7ff-5d2b3fe68bab
 
 [Open Snorlax's full recording](media/snorlax.mp4)
 
@@ -35,9 +31,7 @@ Brake, reach with the feet, absorb the landing, crouch, push through the toes,
 then fly left toward the camera. The tail follows in seven segments; the flame
 bends with tail movement, relative airflow and upward buoyancy.
 
-<video controls preload="metadata" playsinline poster="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/charizard.jpg" width="100%">
-  <source src="https://raw.githubusercontent.com/ncihxaonn/pokemon-motion-study/main/media/charizard.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/84784673-3f3c-4ffe-bf8e-8f954f6eba42
 
 [Open Charizard's full recording](media/charizard.mp4)
 
