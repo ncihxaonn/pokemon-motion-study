@@ -32,5 +32,65 @@ external display turntable; the flame's buoyant direction is deliberately world-
 
 Charizard is a fictional six-limbed animal, so no single natural reference defines
 its whole movement. The references inform separate mechanical principles. Phase
-lengths, delays, the 38% power / 62% recovery wing split, and response amplitudes are
+lengths, delays, the 42% power / 58% recovery wing split, and response amplitudes are
 artistic parameters. The flame is an articulated visual approximation, not CFD.
+
+## Shoulder-led takeoff refinement
+
+The wing controller separates shoulder depression, elbow extension and wrist
+folding. The raised-wing preparation is followed by a first power stroke that overlaps
+leg extension and toe-off. Two further power strokes follow before the exit. During that stroke the outer wing remains open.
+The elbow and wrist then fold later than the shoulder during recovery. The source
+idle clip no longer adds an unrelated wing cycle over this authored sequence.
+Chest elevation follows the downstroke, the neck counter-rotates to steady the
+head, and the ankles and toes respond after the hips. Foot IK retains ownership
+until contact releases. These are artistic timings for this six-limbed character.
+
+References checked for this refinement:
+
+- [Baier, Gatesy & Dial (2013), shoulder and distal-joint XROMM kinematics](https://pmc.ncbi.nlm.nih.gov/articles/PMC3655074/): the shoulder dominates the wing excursion; distal joints modify wing shape and can reverse at different times.
+- [Parslew et al. (2018), avian jumping takeoff](https://pmc.ncbi.nlm.nih.gov/articles/PMC6227979/): leg propulsion and body attitude during the transition to the first downstroke.
+- [Provini & Abourachid (2018), whole-body 3D takeoff kinematics](https://pubmed.ncbi.nlm.nih.gov/29330588/): preparatory head/trunk alignment followed by hip and ankle extension. The researcher's [dual-view high-speed dove footage](https://www.audubon.org/news/how-birds-take-flight-such-ease) was inspected frame by frame.
+- [Berg & Biewener (2010), pigeon takeoff and landing](https://journals.biologists.com/jeb/article/213/10/1651/9685/Wing-and-body-kinematics-of-takeoff-and-landing): body pitch changes through each stroke and helps orient the stroke plane.
+
+Regression checks include the actual imported wingtip moving from above to below
+the shoulder, raised wings during leg loading, sequential distal-joint response,
+and preserved contact, camera framing, pause and reverse-scrub continuity.
+
+## Sustained takeoff sequence
+
+Three main power/recovery cycles are concentrated before the close flyby, with
+a further beat continuing through the exit.
+The first downstroke overlaps the leg push while the toes still bear weight;
+the second and third continue after the feet release. Chest loading begins during
+the combined effort, with delayed neck compensation. Each beat adds a delayed
+upward component to the screen path, so the character keeps gaining height during
+recovery instead of completing one flap and sliding away. The existing leftward,
+toward-camera direction is preserved. The number and timing of beats are artistic
+choices, not a universal bird takeoff template.
+
+[Chin & Lentink (2019)](https://www.nature.com/articles/s41467-019-13347-3)
+measure force over the first three wingbeats and find most aerodynamic force in
+the downstroke. [Berg & Biewener (2010)](https://pubmed.ncbi.nlm.nih.gov/20435815/)
+report continued acceleration over several takeoff beats, with the largest
+acceleration in the second beat. These sources support a sustained sequence;
+leg and wing contributions differ with species and the flight task.
+
+### Flexible membrane surfaces
+
+The study stage centers each character and removes the decorative dashboard card.
+Contact and release timing stays shared with the Hero; the study uses an implied
+support surface so the character silhouette remains the focus.
+
+Charizard's membrane spar trails the leading edge. A bounded bind-space camber
+corrective bows the flexible panels under each downstroke, softens during
+recovery, and briefly reverses as the trailing edge catches up. The corrective
+uses the original membrane-spar skin weights; only an instance-owned geometry
+copy changes. The cached GLB, rigid attachments, body, and other characters remain
+unchanged. Normals follow the changing surface. Disposing the actor also disposes
+its private membrane geometry.
+
+This is an authored approximation of aeroelastic response, not a fluid simulation.
+The reference is Brown University's [bat membrane stiffness and curvature research](https://engineering.brown.edu/news/2014-05-24/tiny-muscles-help-bats-fine-tune-flight),
+which describes load-dependent wing shape and active control of membrane stiffness.
+The lag and amplitudes are chosen for the character's rig and scroll choreography.

@@ -147,7 +147,9 @@ function pokemonScreenPose(kind, motion, anchor, viewport) {
       -(anchor.top + anchor.height) * (1 - motion.approach) +
       (nearCenterY - centerY) * depth -
       anchor.height *
-        (0.06 * travel + 0.06 * Math.pow(Math.sin(progress * Math.PI), 2));
+        (motion.climb +
+          0.06 * travel +
+          0.06 * Math.pow(Math.sin(progress * Math.PI), 2));
     const left = center + x - width / 2,
       top = centerY + y - height / 2;
     return {
@@ -188,6 +190,12 @@ function pokemonCharizardMechanics(entry, exit) {
   return {
     approach: 1 - Math.pow(1 - clamp(entry / 0.7), 2),
     depart,
+    // A delayed rise continues through recovery after each force-producing
+    // downstroke. This carries the body upward rather than just waggling wings.
+    climb:
+      0.025 * ease(0.4, 0.49, exit) +
+      0.025 * ease(0.51, 0.64, exit) +
+      0.02 * ease(0.67, 0.81, exit),
     contact,
     support: contact * (1 - release),
     flight,
@@ -232,5 +240,54 @@ function pokemonCharizardMechanics(entry, exit) {
                       : exit < 0.5
                         ? "liftoff"
                         : "fly",
+  };
+}
+
+// Shoulder-led power stroke followed by a folded recovery. Phase delays are
+// fractions of one beat, not accumulated spring state, so scrubbing retraces it.
+function pokemonCharizardWingBeat(time, motion) {
+  const ease = (a, b, x) => {
+    const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  };
+  const down = 0.42;
+  const launch =
+    ease(0.015, 0.14, motion.exit) * (1 - ease(0.96, 1, motion.exit));
+  // Three visible power strokes: the first overlaps leg extension and toe-off;
+  // the second and third continue supporting and accelerating the airborne body.
+  // Each recovery returns to the raised pose before the next depression.
+  const launchPhase =
+    down * ease(0.2, 0.4, motion.exit) +
+    (1 - down) * ease(0.4, 0.48, motion.exit) +
+    down * ease(0.48, 0.56, motion.exit) +
+    (1 - down) * ease(0.56, 0.64, motion.exit) +
+    down * ease(0.64, 0.72, motion.exit) +
+    (1 - down) * ease(0.72, 0.8, motion.exit) +
+    ease(0.8, 0.96, motion.exit);
+  const cycle = time * 0.82;
+  const sample = (phase, folding, force = false) => {
+    const p = ((phase % 1) + 1) % 1;
+    if (force) return p < down ? Math.sin((p / down) * Math.PI) ** 2 : 0;
+    if (folding)
+      return p < down ? 0 : Math.sin(((p - down) / (1 - down)) * Math.PI) ** 2;
+    return p < down
+      ? Math.cos((p / down) * Math.PI)
+      : -Math.cos(((p - down) / (1 - down)) * Math.PI);
+  };
+  const blend = (lag, folding, force = false) => {
+    const cruising = sample(cycle - lag, folding, force);
+    // Clamp the first stroke's delayed joints at the raised pose, rather than
+    // wrapping the elbow/wrist into a fictitious preceding recovery stroke.
+    return (
+      cruising * (1 - launch) +
+      sample(Math.max(0, launchPhase - lag), folding, force) * launch
+    );
+  };
+  return {
+    launch,
+    launchPhase,
+    stroke: (lag = 0) => blend(lag, false),
+    fold: (lag = 0) => blend(lag, true),
+    power: (lag = 0) => blend(lag, false, true),
   };
 }

@@ -154,6 +154,102 @@ for (const entry of manifest.models) {
     );
     turntable.remove(actor.group);
   }
+  if (entry.name === "charizard") {
+    const vertices = (root) => {
+      const result = [];
+      root.traverse((n) => {
+        if (n.isMesh) result.push(...n.geometry.attributes.position.array);
+      });
+      return result;
+    };
+    const siblingVertices = vertices(sibling.group);
+    actor.update(0, false, context.pokemonScrollMotion("charizard", 0, 1));
+    const resting = vertices(actor.group);
+    const normals = () => {
+      const result = [];
+      actor.group.traverse((n) => {
+        if (n.isMesh) result.push(...n.geometry.attributes.normal.array);
+      });
+      return result;
+    };
+    const restingNormals = normals();
+    actor.update(0, false, {
+      ...context.pokemonScrollMotion("charizard", 0, 1),
+      wingDrive: 1e-6,
+    });
+    assert(
+      Math.max(...normals().map((v, i) => Math.abs(v - restingNormals[i]))) <
+        1e-4,
+      "A vanishingly small wing load must not cause a lighting discontinuity",
+    );
+    const loaded = context.pokemonScrollMotion(
+      "charizard",
+      0.18 + 0.55 * 0.34,
+      1,
+    );
+    actor.update(0, false, loaded);
+    const bowed = vertices(actor.group);
+    assert(
+      Math.max(...bowed.map((v, i) => Math.abs(v - resting[i]))) > 0.025,
+      "The actual membrane surface must bow under load, independently of skeletal skinning",
+    );
+    actor.group.traverse((mesh) => {
+      if (!mesh.isSkinnedMesh) return;
+      const original = gltf.scene.getObjectByName(mesh.name).geometry.attributes
+        .position.array;
+      const { position, skinIndex, skinWeight } = mesh.geometry.attributes;
+      for (let i = 0; i < position.count; i++) {
+        let wing = false;
+        for (let j = 0; j < 4; j++)
+          if (
+            skinWeight.array[i * 4 + j] > 0.001 &&
+            mesh.skeleton.bones[skinIndex.array[i * 4 + j]].name.endsWith(
+              "_wing_b",
+            )
+          )
+            wing = true;
+        for (let a = 0; a < 3; a++) {
+          const delta = Math.abs(
+            position.array[i * 3 + a] - original[i * 3 + a],
+          );
+          assert(delta < 0.15, "Membrane deflection stays bounded");
+          if (!wing || a !== 2)
+            assert.equal(
+              delta,
+              0,
+              "Body and rigid attachments keep their authored geometry",
+            );
+        }
+      }
+    });
+    actor.update(
+      0,
+      false,
+      context.pokemonScrollMotion("charizard", 0.18 + 0.55 * 0.465, 1),
+    );
+    assert.notDeepEqual(
+      vertices(actor.group),
+      bowed,
+      "Recovery must release membrane camber",
+    );
+    actor.update(0, false, loaded);
+    assert.deepEqual(
+      vertices(actor.group),
+      bowed,
+      "Reverse scrubbing restores identical membrane geometry",
+    );
+    actor.update(0, false, context.pokemonScrollMotion("charizard", 0, 1));
+    assert.deepEqual(
+      vertices(actor.group),
+      resting,
+      "Unloaded membranes return to their original shape",
+    );
+    assert.deepEqual(
+      vertices(sibling.group),
+      siblingVertices,
+      "Membrane deformation must not leak to another character instance",
+    );
+  }
   // Probe the real rig on both sides of phase boundaries, including reversed
   // playback. A continuous root path alone does not rule out a snapped joint.
   const boundaries = [
@@ -204,6 +300,34 @@ for (const entry of manifest.models) {
     });
   }
   if (entry.name === "charizard") {
+    // Check the actual imported skeleton, not just a scalar called "downstroke".
+    const relativeWingHeight = (exit) => {
+      actor.update(
+        0,
+        false,
+        context.pokemonScrollMotion("charizard", 0.18 + exit * 0.55),
+      );
+      actor.group.updateMatrixWorld(true);
+      const root = actor.group
+        .getObjectByName("left_wing_a_01")
+        .getWorldPosition(new THREE.Vector3());
+      const tip = actor.group
+        .getObjectByName("left_wing_a_06")
+        .getWorldPosition(new THREE.Vector3());
+      return actor.group.worldToLocal(tip).y - actor.group.worldToLocal(root).y;
+    };
+    for (const [raised, lowered] of [
+      [0.2, 0.4],
+      [0.48, 0.56],
+      [0.64, 0.72],
+    ]) {
+      const raisedWing = relativeWingHeight(raised),
+        loweredWing = relativeWingHeight(lowered);
+      assert(
+        raisedWing > 0.5 && loweredWing < -0.5,
+        "The actual wingtip must complete all three above-to-below power strokes",
+      );
+    }
     const q = (name) => actor.group.getObjectByName(name).quaternion.toArray();
     actor.update(0.1, false, fixedMotion);
     const names = [
@@ -408,6 +532,43 @@ for (const entry of manifest.models) {
   }
   const journeyCamera = context.createPokemonJourneyCamera(actor, entry.name);
   const journeyNeutral = context.pokemonScrollMotion(entry.name, 0, 1);
+  actor.update(0, false, journeyNeutral);
+  context.pokemonPoseBounds(actor.group);
+  for (const [w, h] of [
+    [1324, 574],
+    [357, 437],
+  ]) {
+    const size = Math.min(
+      480,
+      w * 0.7,
+      h * (entry.name === "charizard" ? 0.48 : 0.62),
+    );
+    const f = journeyCamera.userData.frame;
+    const left = (w - size) / 2 + f.x * size,
+      top = (h - size) / 2 + f.y * size;
+    const screenBounds = new THREE.Box3();
+    actor.group.traverse((node) => {
+      if (!node.isMesh) return;
+      const positions = node.geometry.attributes.position,
+        v = new THREE.Vector3();
+      for (let i = 0; i < positions.count; i++) {
+        v.fromBufferAttribute(positions, i);
+        if (node.isSkinnedMesh) node.boneTransform(i, v);
+        v.applyMatrix4(node.matrixWorld).project(journeyCamera);
+        v.set(
+          left + ((v.x + 1) * size * f.scale) / 2,
+          top + ((1 - v.y) * size * f.scale) / 2,
+          0,
+        );
+        screenBounds.expandByPoint(v);
+      }
+    });
+    const center = screenBounds.getCenter(new THREE.Vector3());
+    assert(
+      Math.abs(center.x - w / 2) < 0.01 && Math.abs(center.y - h / 2) < 0.01,
+      `${entry.name}: actual resting mesh must be centered on the study stage, got ${center.x},${center.y}`,
+    );
+  }
   actor.update(2, false, journeyNeutral);
   if (entry.name === "snorlax")
     assert.notDeepEqual(

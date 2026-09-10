@@ -12,18 +12,18 @@ reactive tail flame.
 Run in, brake, settle, then dash away. Ears, wrists and the tail follow the stride
 with a slight delay.
 
-[![Pikachu full-sequence recording](media/pikachu.jpg)](media/pikachu.mp4)
+https://github.com/user-attachments/assets/3645cba6-14b1-484c-8722-6a9779367664
 
-[Watch Pikachu's full recording](media/pikachu.mp4)
+[Open Pikachu's full recording](media/pikachu.mp4)
 
 ### Snorlax
 
-Drop onto the card, settle into sleep, reach for an itch, roll past the support
+Drop into the stage, settle into sleep, reach for an itch, roll past the support
 and slip off. The hands, feet and smaller joints react after the heavy core.
 
-[![Snorlax full-sequence recording](media/snorlax.jpg)](media/snorlax.mp4)
+https://github.com/user-attachments/assets/187d5f66-1272-4b03-a7ff-5d2b3fe68bab
 
-[Watch Snorlax's full recording](media/snorlax.mp4)
+[Open Snorlax's full recording](media/snorlax.mp4)
 
 ### Charizard
 
@@ -31,9 +31,9 @@ Brake, reach with the feet, absorb the landing, crouch, push through the toes,
 then fly left toward the camera. The tail follows in seven segments; the flame
 bends with tail movement, relative airflow and upward buoyancy.
 
-[![Charizard full-sequence recording](media/charizard.jpg)](media/charizard.mp4)
+https://github.com/user-attachments/assets/84784673-3f3c-4ffe-bf8e-8f954f6eba42
 
-[Watch Charizard's full recording](media/charizard.mp4)
+[Open Charizard's full recording](media/charizard.mp4)
 
 The recordings are actual browser frames of the full sequence, one per character.
 The interactive page also has an inline video gallery under **Watch the full recordings**.

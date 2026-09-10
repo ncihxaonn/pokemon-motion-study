@@ -44,11 +44,11 @@
       [-0.212, "Absorb impact"],
       [0, "Stand"],
       [0.3, "Crouch"],
-      [0.365, "Push off"],
-      [0.43, "Extend"],
-      [0.49, "Sweep legs back"],
-      [0.53, "Fly toward us"],
-      [0.59, "Pass the camera"],
+      [0.355, "Wing + leg drive"],
+      [0.4, "First downstroke"],
+      [0.445, "Recover · keep rising"],
+      [0.485, "Second power stroke"],
+      [0.575, "Third power stroke"],
       [0.67, "Exit left"],
     ],
   };
@@ -161,19 +161,23 @@
       intro = Math.max(0, Math.min(1, (distance + 0.72) / 0.62));
     const motion = pokemonScrollMotion(kind, distance, intro);
     active.actor.update(clock, false, motion);
-    const card = $("#card").getBoundingClientRect(),
-      area = canvas.getBoundingClientRect();
-    const size = Math.min(340, w * 0.38, h * 0.56),
+    // A centered study stage: the character owns the space. The camera's
+    // reference frame keeps each original model's proportions and rest framing.
+    const size = Math.min(
+        480,
+        w * 0.7,
+        h * (kind === "charizard" ? 0.48 : 0.62),
+      ),
       fit = active.camera.userData.frame;
     const base = {
-      left: card.right - area.left - size * 0.88,
-      top:
-        card.top -
-        area.top -
-        size * (fit.foot - (kind === "snorlax" ? 0.16 : 0)),
+      left: (w - size) / 2,
+      top: (h - size) / 2,
       width: size,
       height: size,
     };
+    // These offsets CANCEL the larger camera's shifted frustum. With them,
+    // screenX = base.left + (cameraSpaceX - reference.left) * size / referenceSpan.
+    // Centering the expanded viewport itself would move the resting character.
     const expanded = {
       left: base.left + fit.x * size,
       top: base.top + fit.y * size,
